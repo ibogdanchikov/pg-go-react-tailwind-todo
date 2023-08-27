@@ -1,0 +1,10 @@
+# Root .gitignore
+/.idea/
+.vscode/
+*.swp
+*.swo
+*.dockerfile
+.DS_Store
+*.tmp
+*.bak
+

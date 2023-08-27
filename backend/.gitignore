@@ -1,0 +1,7 @@
+# Backend .gitignore
+*.out
+*.exe
+bin/
+pkg/
+vendor/
+
