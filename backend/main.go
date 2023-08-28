@@ -1,6 +1,12 @@
 package main
 
 import (
+	"log"
+
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+
 	"net/http"
 
 	"github.com/gin-contrib/cors"
@@ -8,9 +14,28 @@ import (
 )
 
 func main() {
+	runMigrations()
+
 	router := setupRouter()
 
 	router.Run(":8080")
+}
+
+func runMigrations() {
+	m, err := migrate.New(
+		"file://db/migrations",
+		"postgres://todo:todo@db:5432/todo?sslmode=disable",
+	)
+
+	if err != nil {
+		log.Fatalf("Migration failed: %v", err)
+		return
+	}
+
+	if err := m.Up(); err != nil {
+		log.Printf("Migration Up: %v", err)
+		return
+	}
 }
 
 func setupRouter() *gin.Engine {
