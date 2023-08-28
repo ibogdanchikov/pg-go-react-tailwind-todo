@@ -5,8 +5,34 @@ services:
     build: ./backend
     ports:
       - '8080:8080'
- 
+    depends_on:
+      - db
+
   frontend:
     build: ./frontend
     ports:
       - '80:80'
+
+  db:
+    image: postgres:alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=todo
+      - POSTGRES_PASSWORD=todo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d todo -U todo"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - '8081:8080'
+
+volumes:
+  pgdata:
