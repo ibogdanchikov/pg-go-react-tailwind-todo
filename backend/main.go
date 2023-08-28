@@ -1,44 +1,28 @@
 package main
 
 import (
-	"log"
-
-	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
-
-	"net/http"
+	"backend/api/handlers"
+	"backend/internal/store"
+	"database/sql"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	runMigrations()
 
-	router := setupRouter()
+	connStr := "postgres://todo:todo@db:5434/todo?sslmode=disable"
 
+	store.RunMigrations(connStr, "file://db/migrations")
+
+	db := store.InitDB(connStr)
+	defer db.Close()
+
+	router := setupRouter(db)
 	router.Run(":8080")
 }
 
-func runMigrations() {
-	m, err := migrate.New(
-		"file://db/migrations",
-		"postgres://todo:todo@db:5432/todo?sslmode=disable",
-	)
-
-	if err != nil {
-		log.Fatalf("Migration failed: %v", err)
-		return
-	}
-
-	if err := m.Up(); err != nil {
-		log.Printf("Migration Up: %v", err)
-		return
-	}
-}
-
-func setupRouter() *gin.Engine {
+func setupRouter(db *sql.DB) *gin.Engine {
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
@@ -48,9 +32,8 @@ func setupRouter() *gin.Engine {
 	}
 	router.Use(cors.New(config))
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "New phone, who dis?"})
-	})
+	router.GET("/tasks", handlers.GetTasks(db))
+	router.POST("/tasks", handlers.CreateTask(db))
 
 	return router
 }

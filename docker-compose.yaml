@@ -19,6 +19,7 @@ services:
     environment:
       - POSTGRES_USER=todo
       - POSTGRES_PASSWORD=todo
+      - PGPORT=5434
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d todo -U todo"]
       interval: 1s
@@ -27,7 +28,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - '5432:5432'
+      - '5434:5434'
   adminer:
     image: adminer
     restart: always

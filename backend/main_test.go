@@ -9,7 +9,8 @@ import (
 )
 
 func TestMain(t *testing.T) {
-	router := setupRouter()
+	// Old test, just as an example.
+	router := setupRouter(nil)
 
 	writer := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
