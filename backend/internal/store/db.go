@@ -4,6 +4,7 @@ import (
 	"backend/internal/models"
 	"database/sql"
 	"log"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -24,13 +25,26 @@ func RunMigrations(connStr string, migrationsDir string) {
 	}
 }
 
-func InitDB(connStr string) *sql.DB {
+func InitDB(connStr string, maxRetries int) *sql.DB {
 	db, err := sql.Open("postgres", connStr)
+
 	if err != nil {
-		log.Fatalf("Cannot open DB: %v", err)
+		log.Fatalf("Failed to open DB: %v", err)
 	}
 
-	return db
+	for i := 0; i < maxRetries; i++ {
+		err = db.Ping()
+
+		if err == nil {
+			return db
+		}
+
+		log.Printf("Failed to ping DB: %v, retrying...", err)
+		time.Sleep(1 * time.Second)
+	}
+
+	log.Fatalf("Failed to ping DB after %d retries", maxRetries)
+	return nil
 }
 
 func GetTasks(db *sql.DB) ([]models.Task, error) {

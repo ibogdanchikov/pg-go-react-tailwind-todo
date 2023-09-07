@@ -15,7 +15,7 @@ func main() {
 
 	store.RunMigrations(connStr, "file://db/migrations")
 
-	db := store.InitDB(connStr)
+	db := store.InitDB(connStr, 10)
 	defer db.Close()
 
 	router := setupRouter(db)
