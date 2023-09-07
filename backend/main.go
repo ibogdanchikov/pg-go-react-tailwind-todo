@@ -13,10 +13,10 @@ func main() {
 
 	connStr := "postgres://todo:todo@db:5434/todo?sslmode=disable"
 
-	store.RunMigrations(connStr, "file://db/migrations")
-
 	db := store.InitDB(connStr, 10)
 	defer db.Close()
+
+	store.RunMigrations("file://db/migrations", db)
 
 	router := setupRouter(db)
 	router.Run(":8080")
