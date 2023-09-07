@@ -9,9 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetTasks(db *sql.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-
+func GetTasks(router *gin.Engine, db *sql.DB) {
+	router.GET("/tasks", func(c *gin.Context) {
 		tasks, err := store.GetTasks(db)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -19,11 +18,11 @@ func GetTasks(db *sql.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, tasks)
-	}
+	})
 }
 
-func CreateTask(db *sql.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
+func CreateTask(router *gin.Engine, db *sql.DB) {
+	router.POST("/tasks", func(c *gin.Context) {
 		var task models.Task
 
 		if err := c.BindJSON(&task); err != nil {
@@ -38,5 +37,5 @@ func CreateTask(db *sql.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusCreated, createdTask)
-	}
+	})
 }

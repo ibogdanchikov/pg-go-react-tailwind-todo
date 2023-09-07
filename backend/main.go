@@ -32,8 +32,8 @@ func setupRouter(db *sql.DB) *gin.Engine {
 	}
 	router.Use(cors.New(config))
 
-	router.GET("/tasks", handlers.GetTasks(db))
-	router.POST("/tasks", handlers.CreateTask(db))
+	handlers.GetTasks(router, db)
+	handlers.CreateTask(router, db)
 
 	return router
 }
